@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 // Routes
 require('./routes/user.routes')(app);
 require('./routes/client.routes')(app);
+require('./routes/scoopitem.routes')(app);
 
 // Set the server to listen on a port
 const PORT = process.env.PORT || 5000;
