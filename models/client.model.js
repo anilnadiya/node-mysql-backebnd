@@ -1,33 +1,36 @@
 const db = require('../config/db.config');
 
-// User Model
-const User = function(user) {
-  this.name = user.name;
-  this.email = user.email;
-};
-
-// Create a new User
-User.create = (newUser, result) => {
-  db.query("INSERT INTO users SET ?", newUser, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
-    }
-    result(null, { id: res.insertId, ...newUser });
+function createClient(newClient) {
+  const sql = "INSERT INTO tms_client SET ?";
+  return new Promise((resolve, reject) => {
+    db.query(sql, newClient, (err, result) => {
+      if (err) {
+        console.error("Error creating client:", err);
+        return reject(err);
+      }
+      resolve({ id: result.insertId, ...newClient });
+    });
   });
-};
+}
 
-// Get All Users
-User.getAll = (result) => {
-  db.query("SELECT * FROM tms_client", (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
-    }
-    result(null, res);
+/**
+ * Retrieves all clients from the database.
+ * @returns {Promise<Array>} - A promise that resolves with the list of all clients.
+ */
+function getAllClients() {
+  const sql = "SELECT * FROM tms_client ORDER BY iClientId DESC";
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error retrieving clients:", err);
+        return reject(err);
+      }
+      resolve(result);
+    });
   });
-};
+}
 
-module.exports = User;
+module.exports = {
+  createClient,
+  getAllClients,
+};
