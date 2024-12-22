@@ -13,6 +13,19 @@ function createClient(newClient) {
   });
 }
 
+function updateClient(clientId, updateClientData) {
+  const sql = " UPDATE tms_client SET ? WHERE iClientId  ? ";
+  return new Promise((resolve, reject) => {
+    db.query(sql, clientId, updateClient, (err, result) => {
+      if (err) {
+        console.error("Error creating client:", err);
+        return reject(err);
+      }
+      resolve({ id: result.insertId, ...updateClientData });
+    });
+  });
+}
+
 /**
  * Retrieves all clients from the database.
  * @returns {Promise<Array>} - A promise that resolves with the list of all clients.

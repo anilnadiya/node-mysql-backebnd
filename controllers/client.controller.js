@@ -1,4 +1,4 @@
-const { createClient, getAllClients, getCount, getPaginatedData } = require('../models/client.model');
+const { createClient, updateClient, getAllClients, getCount, getPaginatedData } = require('../models/client.model');
 
 // Create and Save a new Client
 exports.create = async (req, res) => {
@@ -16,6 +16,26 @@ exports.create = async (req, res) => {
     // Save client to the database
     const data = await createClient(client);
 
+    res.status(201).json(data); // Return created client
+  } catch (error) {
+    console.error("Error creating client:", error);
+    res.status(500).json({ message: "An error occurred while creating the client.", error: error.message });
+  }
+};
+
+// update and Save a new Client
+exports.update = async (req, res) => {
+  try {
+    const clietId = req.params.id;
+    const { vUserName, vEmailAddress } = req.body;
+    // Validate request
+    if (!vUserName) {
+      return res.status(400).json({ message: "Company name is required." });
+    }
+    // Create new client object
+    const client = { vUserName, vEmailAddress };
+    // Save client to the database
+    const data = await updateClient(clietId, client);
     res.status(201).json(data); // Return created client
   } catch (error) {
     console.error("Error creating client:", error);
