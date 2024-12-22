@@ -14,17 +14,38 @@ function createClient(newClient) {
 }
 
 function updateClient(clientId, updateClientData) {
-  const sql = " UPDATE tms_client SET ? WHERE iClientId  ? ";
+  const sql = "UPDATE tms_client SET ? WHERE iClientId = ?";
   return new Promise((resolve, reject) => {
-    db.query(sql, clientId, updateClient, (err, result) => {
+    db.query(sql, [updateClientData, clientId] , (err, result) => {
       if (err) {
         console.error("Error creating client:", err);
         return reject(err);
       }
-      resolve({ id: result.insertId, ...updateClientData });
+      if (result.affectedRows === 0) {
+        return reject(new Error("No client found with the provided ID."));
+      }
+      resolve({ clientId: clientId, ...updateClientData });
+
     });
   });
 }
+
+function deleteClient(clientId) {
+  const sql = "DELETE from tms_client WHERE iClientId = ?";
+  return new Promise((resolve, reject) => {
+    db.query(sql, [clientId] , (err, result) => {
+      if (err) {
+        console.error("Error deleting client:", err);
+        return reject(err);
+      }
+      if (result.affectedRows === 0) {
+        return reject(new Error("No client found with the provided ID."));
+      }
+      resolve({ clientId: clientId });
+    });
+  });
+}
+
 
 /**
  * Retrieves all clients from the database.
@@ -43,7 +64,7 @@ function getAllClients() {
   });
 }
 
-async function getCount(){
+async function getCount() {
   try {
     const [rows] = await db.promise().query(" select COUNT(*) as total from tms_client ");
     return rows[0].total;
@@ -52,9 +73,9 @@ async function getCount(){
   }
 }
 
-async function getPaginatedData(offset, limit){
+async function getPaginatedData(offset, limit) {
   try {
-    const [rows] = await db.promise().query(" select * from tms_client ORDER BY iClientId DESC LIMIT ? OFFSET ? ", [limit, offset] );
+    const [rows] = await db.promise().query(" select * from tms_client ORDER BY iClientId DESC LIMIT ? OFFSET ? ", [limit, offset]);
     return rows;
   } catch (error) {
     throw new Error(error);
@@ -63,8 +84,9 @@ async function getPaginatedData(offset, limit){
 
 module.exports = {
   createClient,
+  updateClient,
+  deleteClient,
   getAllClients,
   getCount,
-  getPaginatedData
-
+  getPaginatedData,
 };

@@ -1,4 +1,4 @@
-const { createClient, updateClient, getAllClients, getCount, getPaginatedData } = require('../models/client.model');
+const { createClient, updateClient,deleteClient, getAllClients, getCount, getPaginatedData } = require('../models/client.model');
 
 // Create and Save a new Client
 exports.create = async (req, res) => {
@@ -27,19 +27,41 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const clietId = req.params.id;
+    console.log('clietId',clietId)
     const { vUserName, vEmailAddress } = req.body;
+    
     // Validate request
     if (!vUserName) {
       return res.status(400).json({ message: "Company name is required." });
     }
     // Create new client object
-    const client = { vUserName, vEmailAddress };
+    const clientUp = { vUserName, vEmailAddress };
+   
+    console.log('clientUp',clientUp)
     // Save client to the database
-    const data = await updateClient(clietId, client);
-    res.status(201).json(data); // Return created client
+    const data = await updateClient(clietId, clientUp);
+    res.status(200).json(data); // Return created client
   } catch (error) {
-    console.error("Error creating client:", error);
-    res.status(500).json({ message: "An error occurred while creating the client.", error: error.message });
+    console.error("Error upadating client:", error);
+    res.status(500).json({ message: "An error occurred while updating the client.", error: error.message });
+  }
+};
+
+// delete and Save a new Client
+exports.delete = async (req, res) => {
+  try {
+    const clietId = req.params.id;
+    console.log('clietId',clietId)
+    // Validate request
+    if (!clietId) {
+      return res.status(400).json({ message: "clietId is required." });
+    }
+    // delete client to the database
+    const data = await deleteClient(clietId);
+    res.status(200).json(data); // Return created client
+  } catch (error) {
+    console.error("Error upadating client:", error);
+    res.status(500).json({ message: "An error occurred while updating the client.", error: error.message });
   }
 };
 
