@@ -1,4 +1,4 @@
-const { createClient, getAllClients } = require('../models/client.model');
+const { createClient, getAllClients, getCount, getPaginatedData } = require('../models/client.model');
 
 // Create and Save a new Client
 exports.create = async (req, res) => {
@@ -25,11 +25,37 @@ exports.create = async (req, res) => {
 
 // Retrieve all Clients
 exports.findAll = async (req, res) => {
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10
+  const offset = (page - 1) * limit;
+
+
   try {
-    const data = await getAllClients(); // Retrieve all clients from database
-    res.status(200).json(data); // Return the list of clients
+    const countItem = await getCount();
+    console.log('countItem',countItem)
+    const data = await getPaginatedData(offset, limit);
+
+    const totalPages = Math.ceil(countItem / limit);
+
+    res.send({
+      data,
+      currentPage: page,
+      totalItems: countItem,
+      totalPages: totalPages,
+      limit
+    })
+
   } catch (error) {
-    console.error("Error retrieving clients:", error);
-    res.status(500).json({ message: "An error occurred while retrieving clients.", error: error.message });
+    res.status(500).send({ message: error.message || "Some error occurred while retrieving scoop items." });
   }
 };
+
+// exports.findAll__2 = async (req, res) => {
+//   try {
+//     const data = await getAllClients(); // Retrieve all clients from database
+//     res.status(200).json(data); // Return the list of clients
+//   } catch (error) {
+//     console.error("Error retrieving clients:", error);
+//     res.status(500).json({ message: "An error occurred while retrieving clients.", error: error.message });
+//   }
+// };

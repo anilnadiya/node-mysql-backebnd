@@ -30,7 +30,28 @@ function getAllClients() {
   });
 }
 
+async function getCount(){
+  try {
+    const [rows] = await db.promise().query(" select COUNT(*) as total from tms_client ");
+    return rows[0].total;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+async function getPaginatedData(offset, limit){
+  try {
+    const [rows] = await db.promise().query(" select * from tms_client ORDER BY iClientId DESC LIMIT ? OFFSET ? ", [limit, offset] );
+    return rows;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   createClient,
   getAllClients,
+  getCount,
+  getPaginatedData
+
 };
